@@ -3,7 +3,9 @@
 A full-stack, real-time chatbot that answers questions about cars: brands, models, body types, engines, safety and more. It combines an OpenAI-powered engine with a rule-based keyword engine as a fallback, and supports user accounts with saved, multi-conversation chat history.
 
 **Live demo:** [autobot-ewhdcfduedb9bmaz.polandcentral-01.azurewebsites.net](https://autobot-ewhdcfduedb9bmaz.polandcentral-01.azurewebsites.net)
-*(Register any username and password to try it. The first load can take a few seconds while the Azure instance wakes up.)*
+*(Create an account under **Register**, then sign in with it. The first load can take a few seconds while the Azure instance wakes up.)*
+
+This repository is the cleaned-up public version of the project; the live demo has been running on Azure App Service since July 2026.
 
 ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white)
