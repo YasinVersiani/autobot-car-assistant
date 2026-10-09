@@ -143,6 +143,7 @@ Artificial Intelligence Student<br>
 Technische Hochschule Deggendorf
 
 [![GitHub](https://img.shields.io/badge/GitHub-YasinVersiani-181717?logo=github&logoColor=white)](https://github.com/YasinVersiani)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-yasin--versiani-0A66C2)](https://www.linkedin.com/in/yasin-versiani-6b6102320/)
 
 ## License
 
