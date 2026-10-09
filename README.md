@@ -138,4 +138,12 @@ The OpenAI key is provided through environment variables and is never committed 
 
 ## Author
 
-**Yasin Versiani** – [GitHub](https://github.com/YasinVersiani)
+**Yasin Versiani**<br>
+Artificial Intelligence Student<br>
+Technische Hochschule Deggendorf
+
+[![GitHub](https://img.shields.io/badge/GitHub-YasinVersiani-181717?logo=github&logoColor=white)](https://github.com/YasinVersiani)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
