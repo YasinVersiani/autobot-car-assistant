@@ -24,4 +24,8 @@ function resetFallbackCounter(session) {
   session.failureCount = 0;
 }
 
-module.exports = { handleFallback, resetFallbackCounter };
+function getFailureCount(session) {
+  return session.failureCount;
+}
+
+module.exports = { handleFallback, resetFallbackCounter, getFailureCount };

@@ -60,6 +60,7 @@ autobot-car-assistant/
 ├── server/
 │   ├── server.js                 # Express + Socket.IO server, serves the React build
 │   ├── socketHandler.js          # auth, message routing, conversation sessions
+│   ├── dataLoader.js             # loads the car knowledge base at startup
 │   ├── engine/
 │   │   ├── aiEngine.js           # main conversation engine (AI → keywords → fallback)
 │   │   ├── aiIntentScanner.js    # OpenAI chat completion call

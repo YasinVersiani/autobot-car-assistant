@@ -11,17 +11,29 @@ const { isRepeatQuestion } = require("./repeatGuard");
 const REPEAT_REPLY = "I think I already mentioned that! Let me think of something else. What other car are you curious about?";
 const HARD_RESET_REPLY = "I got confused sorry! Let us start fresh. Which car brand are you curious about, BMW, Tesla, or Audi?";
 
+function incrementTurn(session) {
+  session.turnCount += 1;
+}
+
+function getTurnCount(session) {
+  return session.turnCount;
+}
+
+function resetTurnCount(session) {
+  session.turnCount = 0;
+}
+
 // session: the ChatSession of the connection that sent the message
 async function handleMessage(session, userText) {
-  session.turnCount += 1;
+  incrementTurn(session);
 
   // check for a repeat BEFORE adding this message to history
-  const isRepeat = isRepeatQuestion(userText, session.history);
+  const isRepeat = isRepeatQuestion(userText, session.getHistory());
 
-  session.addMessage({ sender: "user", text: userText });
+  session.addToHistory({ sender: "user", text: userText });
 
   if (isRepeat) {
-    session.addMessage({ sender: "bot", text: REPEAT_REPLY });
+    session.addToHistory({ sender: "bot", text: REPEAT_REPLY });
     return REPEAT_REPLY;
   }
 
@@ -36,12 +48,12 @@ async function handleMessage(session, userText) {
     }
   } else {
     resetFallbackCounter(session);
-    botReply = botReply + " " + getSteeringQuestion(session.history);
+    botReply = botReply + " " + getSteeringQuestion(session.getHistory());
   }
 
-  session.addMessage({ sender: "bot", text: botReply });
+  session.addToHistory({ sender: "bot", text: botReply });
 
   return botReply;
 }
 
-module.exports = { handleMessage };
+module.exports = { handleMessage, getTurnCount, resetTurnCount };

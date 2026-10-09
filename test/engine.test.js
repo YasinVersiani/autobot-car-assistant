@@ -74,7 +74,7 @@ test.describe("AI engine", () => {
 
     assert.match(reply, /911/);
     assert.match(reply, /\?$/);
-    assert.equal(session.history.length, 2);
+    assert.equal(session.getHistory().length, 2);
   });
 
   test("does not answer the same question twice", async () => {
@@ -92,7 +92,7 @@ test.describe("AI engine", () => {
     const reply = await aiEngine.handleMessage(session, "zxcv");
 
     assert.match(reply, new RegExp(HARD_RESET_REPLY));
-    assert.deepEqual(session.history.map(m => m.sender), ["bot"]);
+    assert.deepEqual(session.getHistory().map(m => m.sender), ["bot"]);
   });
 
   test("keeps separate sessions independent", async () => {
@@ -103,8 +103,8 @@ test.describe("AI engine", () => {
     const bobReply = await aiEngine.handleMessage(bob, "tell me about audi");
 
     assert.doesNotMatch(bobReply, new RegExp(REPEAT_REPLY));
-    assert.equal(alice.history.length, 2);
-    assert.equal(bob.history.length, 2);
+    assert.equal(alice.getHistory().length, 2);
+    assert.equal(bob.getHistory().length, 2);
   });
 });
 
@@ -114,5 +114,40 @@ test.describe("keyword engine", () => {
     const reply = keywordEngine.handleMessage(session, "what about the mustang");
 
     assert.match(reply, /Mustang/);
+  });
+});
+
+test.describe("helpers", () => {
+  const { getMatchedKeywords } = require("../server/engine/keywordIntentScanner");
+  const { isConversationLong } = require("../server/engine/repeatGuard");
+  const { getFailureCount } = require("../server/engine/fallback");
+
+  test("lists the keywords found in a message", () => {
+    assert.deepEqual(getMatchedKeywords("bmw or audi?").sort(), ["audi", "bmw"]);
+  });
+
+  test("flags conversations longer than 20 turns", () => {
+    assert.equal(isConversationLong(20), false);
+    assert.equal(isConversationLong(21), true);
+  });
+
+  test("tracks turns and failures per session", async () => {
+    const session = new ChatSession();
+    await aiEngine.handleMessage(session, "tell me about honda");
+    await aiEngine.handleMessage(session, "qwerty");
+
+    assert.equal(aiEngine.getTurnCount(session), 2);
+    assert.equal(getFailureCount(session), 1);
+
+    aiEngine.resetTurnCount(session);
+    assert.equal(keywordEngine.getTurnCount(session), 0);
+  });
+
+  test("returns only the bot's messages", async () => {
+    const session = new ChatSession();
+    await aiEngine.handleMessage(session, "tell me about kia");
+
+    assert.equal(session.getBotMessages().length, 1);
+    assert.match(session.getBotMessages()[0], /Kia/);
   });
 });

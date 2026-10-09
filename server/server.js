@@ -8,6 +8,9 @@ const path = require("path");
 const { Server } = require("socket.io");
 
 const { handleSocketEvents } = require("./socketHandler");
+const { loadCarData } = require("./dataLoader");
+
+loadCarData();
 
 const app = express();
 const server = http.createServer(app);

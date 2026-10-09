@@ -30,4 +30,18 @@ function getBotResponse(userText) {
   return matched.length > 0 ? matched.join(" Also, ") : null;
 }
 
-module.exports = { getBotResponse };
+// returns just the keyword names that matched, useful for debugging
+function getMatchedKeywords(userText) {
+  const lower = userText.toLowerCase();
+  const keys = [];
+
+  for (const keyword in carData) {
+    if (lower.includes(keyword)) {
+      keys.push(keyword);
+    }
+  }
+
+  return keys;
+}
+
+module.exports = { getBotResponse, getMatchedKeywords };

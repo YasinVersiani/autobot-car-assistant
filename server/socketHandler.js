@@ -24,8 +24,8 @@ function handleSocketEvents(socket, io) {
     const timestamp = currentTime();
 
     socket.emit("bot_message", { text: text, timestamp: timestamp });
-    session.addMessage({ sender: "bot", text: text, timestamp: timestamp });
-    saveChat(currentUser, currentChatId, session.history);
+    session.addToHistory({ sender: "bot", text: text, timestamp: timestamp });
+    saveChat(currentUser, currentChatId, session.getHistory());
   }
 
   // updates the history sidebar
@@ -101,7 +101,7 @@ function handleSocketEvents(socket, io) {
       socket.emit("bot_message", { text: reply, timestamp: currentTime() });
 
       // save the updated history so it persists between sessions
-      saveChat(currentUser, currentChatId, session.history);
+      saveChat(currentUser, currentChatId, session.getHistory());
       pushChatList();
     }, 600);
   });
@@ -118,8 +118,8 @@ function handleSocketEvents(socket, io) {
       socket.emit("bot_message", { text: text, timestamp: timestamp });
 
       if (currentUser) {
-        session.addMessage({ sender: "bot", text: text, timestamp: timestamp });
-        saveChat(currentUser, currentChatId, session.history);
+        session.addToHistory({ sender: "bot", text: text, timestamp: timestamp });
+        saveChat(currentUser, currentChatId, session.getHistory());
         pushChatList();
       }
     }, 300);
@@ -134,7 +134,7 @@ function handleSocketEvents(socket, io) {
     session.reset();
 
     greet();
-    socket.emit("history_loaded", { history: session.history });
+    socket.emit("history_loaded", { history: session.getHistory() });
     pushChatList();
   });
 

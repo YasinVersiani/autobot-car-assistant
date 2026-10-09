@@ -8,11 +8,23 @@ const { preventRepeat } = require("./repeatGuard");
 
 const HARD_RESET_REPLY = "I got confused sorry! Let us start fresh. Which car brand are you curious about, BMW, Tesla, or Audi?";
 
+function incrementTurn(session) {
+  session.turnCount += 1;
+}
+
+function getTurnCount(session) {
+  return session.turnCount;
+}
+
+function resetTurnCount(session) {
+  session.turnCount = 0;
+}
+
 // session: the ChatSession of the connection that sent the message
 function handleMessage(session, userText) {
-  session.turnCount += 1;
+  incrementTurn(session);
 
-  session.addMessage({ sender: "user", text: userText });
+  session.addToHistory({ sender: "user", text: userText });
 
   let botReply = getBotResponse(userText);
 
@@ -24,14 +36,14 @@ function handleMessage(session, userText) {
       botReply = HARD_RESET_REPLY;
     }
   } else {
-    botReply = preventRepeat(botReply, session.history);
+    botReply = preventRepeat(botReply, session.getHistory());
     resetFallbackCounter(session);
-    botReply = botReply + " " + getSteeringQuestion(session.history);
+    botReply = botReply + " " + getSteeringQuestion(session.getHistory());
   }
 
-  session.addMessage({ sender: "bot", text: botReply });
+  session.addToHistory({ sender: "bot", text: botReply });
 
   return botReply;
 }
 
-module.exports = { handleMessage };
+module.exports = { handleMessage, getTurnCount, resetTurnCount };

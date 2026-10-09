@@ -21,4 +21,9 @@ function isRepeatQuestion(userText, history) {
   return previousUserMsgs.includes(userText.toLowerCase().trim());
 }
 
-module.exports = { preventRepeat, isRepeatQuestion };
+// true once a conversation has gone past 20 turns
+function isConversationLong(turnCount) {
+  return turnCount > 20;
+}
+
+module.exports = { preventRepeat, isRepeatQuestion, isConversationLong };
