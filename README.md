@@ -76,7 +76,8 @@ autobot-car-assistant/
 ├── frontend/                     # React app (Create React App)
 │   ├── public/
 │   └── src/
-├── docs/screenshots/
+├── test/                         # automated tests (npm test)
+├── docs/
 ├── .env.example
 └── package.json
 ```
@@ -106,6 +107,14 @@ The OpenAI key is optional: without it, the bot answers from the keyword knowled
 | `OPENAI_MODEL` | Chat model to use | `gpt-4o-mini` |
 | `PORT` | HTTP port | `3000` |
 | `DATA_DIR` | Folder for user accounts and saved chats | `./user-data` |
+
+## Tests
+
+```bash
+npm test
+```
+
+Runs the test suite with Node's built-in test runner (no extra dependencies, no API key needed). It covers the keyword knowledge base, repeat detection, the soft/hard fallback strategy, both conversation engines, and the socket layer: signup and login, and two users chatting at the same time without sharing history.
 
 ## Deployment
 
