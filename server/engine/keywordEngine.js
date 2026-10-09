@@ -4,40 +4,34 @@
 const { getBotResponse } = require("./keywordIntentScanner");
 const { getSteeringQuestion } = require("./steering");
 const { handleFallback, resetFallbackCounter } = require("./fallback");
-const { addToHistory, getHistory, clearHistory } = require("./historyHandler");
 const { preventRepeat } = require("./repeatGuard");
 
-let turnCount = 0;
+const HARD_RESET_REPLY = "I got confused sorry! Let us start fresh. Which car brand are you curious about, BMW, Tesla, or Audi?";
 
-function resetTurnCount() {
-  turnCount = 0;
-}
+// session: the ChatSession of the connection that sent the message
+function handleMessage(session, userText) {
+  session.turnCount += 1;
 
-function handleMessage(userText) {
-  turnCount += 1;
-
-  addToHistory({ sender: "user", text: userText });
+  session.addMessage({ sender: "user", text: userText });
 
   let botReply = getBotResponse(userText);
 
   if (!botReply) {
-    botReply = handleFallback();
+    botReply = handleFallback(session);
 
     if (botReply === "__HARD_RESET__") {
-      clearHistory();
-      resetTurnCount();
-      resetFallbackCounter();
-      botReply = "I got confused sorry! Let us start fresh. Which car brand are you curious about, BMW, Tesla, or Audi?";
+      session.reset();
+      botReply = HARD_RESET_REPLY;
     }
   } else {
-    botReply = preventRepeat(botReply, getHistory());
-    resetFallbackCounter();
-    botReply = botReply + " " + getSteeringQuestion(getHistory());
+    botReply = preventRepeat(botReply, session.history);
+    resetFallbackCounter(session);
+    botReply = botReply + " " + getSteeringQuestion(session.history);
   }
 
-  addToHistory({ sender: "bot", text: botReply });
+  session.addMessage({ sender: "bot", text: botReply });
 
   return botReply;
 }
 
-module.exports = { handleMessage, resetTurnCount };
+module.exports = { handleMessage };

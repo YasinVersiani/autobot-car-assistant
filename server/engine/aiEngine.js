@@ -6,48 +6,42 @@ const { getBotResponse: getAiResponse } = require("./aiIntentScanner");
 const { getBotResponse: getKeywordResponse } = require("./keywordIntentScanner");
 const { getSteeringQuestion } = require("./steering");
 const { handleFallback, resetFallbackCounter } = require("./fallback");
-const { addToHistory, getHistory, clearHistory } = require("./historyHandler");
 const { isRepeatQuestion } = require("./repeatGuard");
 
-let turnCount = 0;
+const REPEAT_REPLY = "I think I already mentioned that! Let me think of something else. What other car are you curious about?";
+const HARD_RESET_REPLY = "I got confused sorry! Let us start fresh. Which car brand are you curious about, BMW, Tesla, or Audi?";
 
-function resetTurnCount() {
-  turnCount = 0;
-}
-
-async function handleMessage(userText) {
-  turnCount += 1;
+// session: the ChatSession of the connection that sent the message
+async function handleMessage(session, userText) {
+  session.turnCount += 1;
 
   // check for a repeat BEFORE adding this message to history
-  const isRepeat = isRepeatQuestion(userText, getHistory());
+  const isRepeat = isRepeatQuestion(userText, session.history);
 
-  addToHistory({ sender: "user", text: userText });
+  session.addMessage({ sender: "user", text: userText });
 
   if (isRepeat) {
-    const botReply = "I think I already mentioned that! Let me think of something else. What other car are you curious about?";
-    addToHistory({ sender: "bot", text: botReply });
-    return botReply;
+    session.addMessage({ sender: "bot", text: REPEAT_REPLY });
+    return REPEAT_REPLY;
   }
 
   let botReply = (await getAiResponse(userText)) || getKeywordResponse(userText);
 
   if (!botReply) {
-    botReply = handleFallback();
+    botReply = handleFallback(session);
 
     if (botReply === "__HARD_RESET__") {
-      clearHistory();
-      resetTurnCount();
-      resetFallbackCounter();
-      botReply = "I got confused sorry! Let us start fresh. Which car brand are you curious about, BMW, Tesla, or Audi?";
+      session.reset();
+      botReply = HARD_RESET_REPLY;
     }
   } else {
-    resetFallbackCounter();
-    botReply = botReply + " " + getSteeringQuestion(getHistory());
+    resetFallbackCounter(session);
+    botReply = botReply + " " + getSteeringQuestion(session.history);
   }
 
-  addToHistory({ sender: "bot", text: botReply });
+  session.addMessage({ sender: "bot", text: botReply });
 
   return botReply;
 }
 
-module.exports = { handleMessage, resetTurnCount };
+module.exports = { handleMessage };

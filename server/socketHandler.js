@@ -1,26 +1,31 @@
 // Connection layer between the React client and the chat engine.
 // Handles auth, message routing and the multi-conversation history sidebar.
+// Every connection has its own ChatSession, so concurrent users never share state.
 
-const { handleMessage, resetTurnCount } = require("./engine/aiEngine");
-const { clearHistory, getHistory, addToHistory } = require("./engine/historyHandler");
-const { resetFallbackCounter } = require("./engine/fallback");
+const { handleMessage } = require("./engine/aiEngine");
+const { ChatSession } = require("./engine/chatSession");
 const { signup, login } = require("./storage/userAccounts");
 const { getActiveChat, saveChat, newChat, switchChat, getChatList } = require("./storage/savedChats");
 
+function currentTime() {
+  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
 function handleSocketEvents(socket, io) {
 
-  // who is logged in on this connection, and which chat messages are saved into
+  // who is logged in on this connection, which chat is open, and its in-memory state
   let currentUser = null;
   let currentChatId = null;
+  const session = new ChatSession();
 
   // opening bot message, used on first login and on a new chat
   function greet() {
     const text = "Welcome to Autobot! I know everything about cars. Which car brand are you curious about, BMW, Tesla, Ferrari, or something else?";
-    const timestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const timestamp = currentTime();
 
     socket.emit("bot_message", { text: text, timestamp: timestamp });
-    addToHistory({ sender: "bot", text: text, timestamp: timestamp });
-    saveChat(currentUser, currentChatId, getHistory());
+    session.addMessage({ sender: "bot", text: text, timestamp: timestamp });
+    saveChat(currentUser, currentChatId, session.history);
   }
 
   // updates the history sidebar
@@ -29,6 +34,26 @@ function handleSocketEvents(socket, io) {
       chats: getChatList(currentUser),
       activeId: currentChatId
     });
+  }
+
+  // marks the user as signed in on this connection and opens their active chat
+  function startSession(username) {
+    currentUser = username;
+    const active = getActiveChat(currentUser);
+    currentChatId = active.id;
+
+    // load saved messages back into the session so steering and repeat detection keep working
+    session.load(active.messages);
+
+    socket.emit("auth_result", { ok: true, user: { username: currentUser } });
+
+    if (active.messages.length > 0) {
+      socket.emit("history_loaded", { history: active.messages });
+    } else {
+      greet();
+    }
+
+    pushChatList();
   }
 
   // user submitted the signup form; a new account is signed in straight away
@@ -55,37 +80,11 @@ function handleSocketEvents(socket, io) {
     startSession(data.username);
   });
 
-  // marks the user as signed in on this connection and opens their active chat
-  function startSession(username) {
-    currentUser = username;
-    const active = getActiveChat(currentUser);
-    currentChatId = active.id;
-    // load saved messages back into memory so steering and repeat detection keep working
-    clearHistory();
-    resetTurnCount();
-    resetFallbackCounter();
-    active.messages.forEach(function(msg) {
-      addToHistory(msg);
-    });
-
-    socket.emit("auth_result", { ok: true, user: { username: currentUser } });
-
-    if (active.messages.length > 0) {
-      socket.emit("history_loaded", { history: active.messages });
-    } else {
-      greet();
-    }
-
-    pushChatList();
-  }
-
   // user clicked logout
   socket.on("logout", function() {
     currentUser = null;
     currentChatId = null;
-    clearHistory();
-    resetTurnCount();
-    resetFallbackCounter();
+    session.reset();
   });
 
   // main event: user sent a message
@@ -97,34 +96,30 @@ function handleSocketEvents(socket, io) {
 
     // short delay so replies feel natural; handleMessage is async because it awaits the OpenAI call
     setTimeout(async function() {
-      const reply = await handleMessage(userText);
+      const reply = await handleMessage(session, userText);
 
-      socket.emit("bot_message", {
-        text: reply,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-      });
-      // save the updated history for this user so it persists between sessions
-      saveChat(currentUser, currentChatId, getHistory());
+      socket.emit("bot_message", { text: reply, timestamp: currentTime() });
+
+      // save the updated history so it persists between sessions
+      saveChat(currentUser, currentChatId, session.history);
       pushChatList();
     }, 600);
   });
 
-  // Reset button: clear server-side state and send the opening message again
+  // Reset button: clear the session and send the opening message again
   socket.on("reset_conversation", function() {
-    clearHistory();
-    resetTurnCount();
-    resetFallbackCounter();
+    session.reset();
 
     // small delay before responding so the screen clears first
     setTimeout(function() {
       const text = "Chat has been reset. Let us start again! Which car are you curious about?";
-      const timestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const timestamp = currentTime();
 
       socket.emit("bot_message", { text: text, timestamp: timestamp });
 
       if (currentUser) {
-        addToHistory({ sender: "bot", text: text, timestamp: timestamp });
-        saveChat(currentUser, currentChatId, getHistory());
+        session.addMessage({ sender: "bot", text: text, timestamp: timestamp });
+        saveChat(currentUser, currentChatId, session.history);
         pushChatList();
       }
     }, 300);
@@ -136,13 +131,10 @@ function handleSocketEvents(socket, io) {
 
     const chat = newChat(currentUser);
     currentChatId = chat.id;
-
-    clearHistory();
-    resetTurnCount();
-    resetFallbackCounter();
+    session.reset();
 
     greet();
-    socket.emit("history_loaded", { history: getHistory() });
+    socket.emit("history_loaded", { history: session.history });
     pushChatList();
   });
 
@@ -154,13 +146,7 @@ function handleSocketEvents(socket, io) {
     if (!chat) return;
 
     currentChatId = chat.id;
-
-    clearHistory();
-    resetTurnCount();
-    resetFallbackCounter();
-    chat.messages.forEach(function(msg) {
-      addToHistory(msg);
-    });
+    session.load(chat.messages);
 
     socket.emit("history_loaded", { history: chat.messages });
     pushChatList();

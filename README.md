@@ -26,7 +26,7 @@ A full-stack, real-time chatbot that answers questions about cars: brands, model
 - **Conversation design** – follow-up "steering" questions keep the chat going, repeat detection avoids answering the same question twice, and a soft → hard fallback strategy recovers from confusing input.
 - **User accounts** – registration and login with bcrypt-hashed passwords.
 - **Saved conversations** – each user can start new chats, reopen older ones from the history sidebar, reset a chat, or download it as JSON.
-- **Real-time messaging** over WebSockets (Socket.IO).
+- **Real-time messaging** over WebSockets (Socket.IO), with isolated conversation state per connection so concurrent users never share history.
 - **CI/CD** – built and deployed to Azure App Service by a GitHub Actions pipeline.
 
 ## How it works
@@ -45,7 +45,7 @@ flowchart LR
 ```
 
 1. The React client sends each message over a Socket.IO connection.
-2. `socketHandler` checks the user's session and passes the text to `aiEngine`.
+2. `socketHandler` checks the user is signed in and passes the text, together with that connection's `ChatSession`, to `aiEngine`.
 3. `aiEngine` skips repeated questions, asks OpenAI for an answer, and falls back to the keyword knowledge base if needed.
 4. A steering question is appended to keep the conversation going, and the updated chat is saved to the user's history file.
 
@@ -66,7 +66,7 @@ autobot-car-assistant/
 │   │   ├── steering.js           # follow-up questions
 │   │   ├── fallback.js           # soft / hard fallback strategy
 │   │   ├── repeatGuard.js        # repeat detection
-│   │   └── historyHandler.js     # in-memory conversation history
+│   │   └── chatSession.js        # per-connection conversation state
 │   ├── storage/
 │   │   ├── userAccounts.js       # signup / login with bcrypt
 │   │   ├── savedChats.js         # per-user saved conversations
