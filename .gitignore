@@ -1,0 +1,19 @@
+# dependencies
+node_modules/
+
+# environment / secrets
+.env
+.env.*
+!.env.example
+
+# build output
+frontend/build/
+
+# runtime data (user accounts and saved chats)
+user-data/
+
+# logs and OS files
+*.log
+logs/
+.DS_Store
+Thumbs.db

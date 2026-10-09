@@ -1,0 +1,22 @@
+{
+  "name": "autobot-car-assistant",
+  "version": "1.0.0",
+  "description": "AI car assistant chatbot with real-time chat, user accounts and saved conversations (Node.js, Socket.IO, React, OpenAI)",
+  "main": "server/server.js",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "start": "node server/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^17.4.2",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  },
+  "author": "Yasin Versiani",
+  "license": "ISC"
+}

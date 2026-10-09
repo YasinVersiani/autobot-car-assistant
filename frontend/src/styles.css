@@ -1,0 +1,465 @@
+/* Dark theme for the chatbot UI: layout, sidebar, message bubbles, input area,
+   login page and responsive breakpoints. */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0f0f14;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.app-shell {
+  display: flex;
+  width: 640px;
+  height: 700px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.history-sidebar {
+  width: 160px;
+  background-color: #1f1f29;
+  border-right: 1px solid #2e2e3a;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 10px;
+}
+
+.history-title {
+  color: #9ca3af;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+
+.new-chat-button {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.new-chat-button:hover {
+  background-color: rgba(245, 158, 11, 0.25);
+}
+
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.history-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.history-item:hover {
+  background-color: #2e2e3a;
+}
+
+.history-item.active {
+  background-color: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.history-item-title {
+  color: #e5e7eb;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-item-meta {
+  color: #6b7280;
+  font-size: 10px;
+}
+
+.app-wrapper {
+  width: 480px;
+  height: 700px;
+  background-color: #16161d;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-header {
+  background: #1f1f29;
+  color: #f59e0b;
+  padding: 14px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #2e2e3a;
+}
+
+.chat-header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.header-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.export-button {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.export-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.reset-button {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.reset-button:hover {
+  background-color: rgba(255, 80, 80, 0.5);
+}
+
+.message-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #0f0f14;
+}
+
+.message-row {
+  display: flex;
+  width: 100%;
+}
+
+.bot-row {
+  justify-content: flex-start;
+}
+
+.user-row {
+  justify-content: flex-end;
+}
+
+.message-bubble {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.bot-bubble {
+  background-color: #1f1f29;
+  color: #e5e7eb;
+  border: 1px solid #2e2e3a;
+  border-bottom-left-radius: 4px;
+}
+
+.user-bubble {
+  background: #f59e0b;
+  color: #16161d;
+  border-bottom-right-radius: 4px;
+}
+
+.message-timestamp {
+  font-size: 10px;
+  opacity: 0.6;
+  display: block;
+  text-align: right;
+  margin-top: 4px;
+}
+
+.user-input-area {
+  display: flex;
+  padding: 14px;
+  border-top: 1px solid #2e2e3a;
+  gap: 8px;
+  background-color: #1f1f29;
+}
+
+.user-input-field {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #2e2e3a;
+  border-radius: 24px;
+  font-size: 14px;
+  outline: none;
+  background: #16161d;
+  color: #e5e7eb;
+  transition: border-color 0.2s ease;
+}
+
+.user-input-field::placeholder {
+  color: #6b7280;
+}
+
+.user-input-field:focus {
+  border-color: #f59e0b;
+}
+
+.send-button {
+  background: #f59e0b;
+  color: #16161d;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 24px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: opacity 0.2s ease;
+}
+
+.send-button:hover {
+  opacity: 0.85;
+}
+
+/* login page - dark theme with car image */
+
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 16px;
+  background: #0f0f14;
+}
+
+.login-card {
+  background: #16161d;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 760px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  display: flex;
+  overflow: hidden;
+}
+
+.login-image-side {
+  flex: 1;
+  display: none;
+}
+
+.login-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.login-form-side {
+  flex: 1;
+  padding: 40px;
+  color: #e5e7eb;
+}
+
+.login-card h1 {
+  font-size: 28px;
+  margin-bottom: 4px;
+  color: #f59e0b;
+  letter-spacing: 1px;
+}
+
+.login-subtitle {
+  color: #9ca3af;
+  margin-bottom: 24px;
+  font-size: 13px;
+}
+
+.login-tabs {
+  display: flex;
+  margin-bottom: 24px;
+  background: #1f1f29;
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.login-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.login-tab.active {
+  background: #f59e0b;
+  color: #16161d;
+}
+
+.login-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #9ca3af;
+  margin-bottom: 6px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border: 1px solid #2e2e3a;
+  border-radius: 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+  background: #1f1f29;
+  color: #e5e7eb;
+  transition: border-color 0.2s ease;
+}
+
+.login-input::placeholder {
+  color: #6b7280;
+}
+
+.login-input:focus {
+  border-color: #f59e0b;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: #f59e0b;
+  color: #16161d;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.2s ease;
+}
+
+.login-btn:hover {
+  opacity: 0.85;
+}
+
+.login-error {
+  color: #f87171;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+/* show the car image only on bigger screens */
+@media (min-width: 768px) {
+  .login-image-side {
+    display: block;
+  }
+}
+
+/* logout button in header */
+.logout-btn {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* makes it work on mobile and tablets */
+@media (max-width: 767px) {
+  body {
+    align-items: stretch;
+  }
+
+  .app-shell {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    flex-direction: column;
+  }
+
+  .history-sidebar {
+    width: 100%;
+    max-height: 140px;
+    border-right: none;
+    border-bottom: 1px solid #2e2e3a;
+  }
+
+  .app-wrapper {
+    width: 100%;
+    height: auto;
+    flex: 1;
+    border-radius: 0;
+  }
+
+  .chat-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .chat-header h1 {
+    font-size: 18px;
+  }
+
+  .header-buttons {
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .login-card {
+    padding: 24px;
+  }
+}
